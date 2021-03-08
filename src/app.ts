@@ -1,8 +1,10 @@
 import { Client, Message, MessageAttachment, MessageEmbed } from 'discord.js';
 import findExpressions from './match';
 
+require('dotenv').config()
+
 const client: Client = new Client()
-const BOTKEY = process.env.BOTKEY;
+const BOT_KEY = process.env.BOT_KEY;
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
@@ -24,4 +26,4 @@ client.on('message', (msg) => {
   }
 });
 
-client.login(BOTKEY);
+client.login(BOT_KEY);
