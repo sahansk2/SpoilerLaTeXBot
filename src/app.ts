@@ -1,5 +1,5 @@
 import { Client, Message, MessageAttachment, MessageEmbed } from 'discord.js';
-import findExpressions from './match';
+import { findExpressions, exprToURL } from './match';
 
 require('dotenv').config()
 
@@ -21,7 +21,7 @@ client.on('message', (msg) => {
     } else {
       const expressions = findExpressions(content)
       if (expressions.length > 0)
-        msg.channel.send(expressions.map((expr, i) => new MessageAttachment(`https://chart.googleapis.com/chart?cht=tx&chl=${encodeURI(expr)}`, `SPOILER_expr_${i}.png`)))
+        msg.channel.send(expressions.map((expr, i) => new MessageAttachment(`https://chart.googleapis.com/chart?cht=tx&chl=${exprToURL(expr)}`, `SPOILER_expr_${i}.png`)))
     }
   }
 });

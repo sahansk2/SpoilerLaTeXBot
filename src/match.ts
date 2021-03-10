@@ -9,4 +9,10 @@ function findExpressions(content: string): string[] {
     return results;
 }
 
-export default findExpressions
+function exprToURL(expr: string): string {
+    return `${encodeURIComponent(expr)}`
+}
+export {
+    findExpressions,
+    exprToURL
+}

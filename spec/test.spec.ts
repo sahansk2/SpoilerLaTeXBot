@@ -1,7 +1,7 @@
 import expectExport from 'expect'
 import '../src/match'
 import assert from 'assert'
-import findExpressions from '../src/match'
+import { findExpressions, exprToURL } from '../src/match'
 
 describe('findExpressions', () => {
     it('Should match a simple expression', () => {
@@ -27,5 +27,13 @@ describe('findExpressions', () => {
         const exprs = findExpressions(testStr)
         assert.strictEqual(exprs.length, 0)
         assert.notStrictEqual(exprs, ['2890', 'tan^{-1}(4/3)'])
+    })
+    it('Should convert plus signs into the latex expression', () => {
+        const testStr = 'What is $|| cos(2x) + sin(2x) ||?'
+        const expr = findExpressions(testStr)[0]
+        const encodedStr = exprToURL(expr)
+        assert.doesNotMatch(encodedStr, RegExp(String.raw`\+`), 'A "+" was found in the encoded string. This will be converted to whitespace and will be lost.')
+        const receivedStr = decodeURIComponent(encodedStr);
+        assert.strictEqual(expr, receivedStr);
     })
 })
