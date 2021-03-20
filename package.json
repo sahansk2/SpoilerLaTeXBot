@@ -1,5 +1,5 @@
 {
-  "name": "secret-math-bot",
+  "name": "secretlatexbot",
   "version": "1.0.0",
   "description": "Put in spoiler'd Latex, get out spoiler'd Latex",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "dev": "ts-node ./src/app.ts"
   },
   "author": "Sahan Kumarasinghe",
-  "license": "All Rights Reserved",
+  "license": "AGPLv3",
   "dependencies": {
     "@tsconfig/node14": "^1.0.0",
     "@types/node": "^14.14.31",
