@@ -13,6 +13,7 @@
   "dependencies": {
     "@tsconfig/node14": "^1.0.0",
     "@types/node": "^14.14.31",
+    "@types/sqlite3": "^3.1.7",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "sqlite3": "^5.0.2",
