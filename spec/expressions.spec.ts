@@ -24,7 +24,7 @@ import { findExpressions, exprToURL } from '../src/match'
 
 describe('findExpressions', () => {
     it('Should match a simple expression', () => {
-        const testStr = 'Did you get $|| 3 || for the first question'
+        const testStr: string = 'Did you get $|| 3 || for the first question'
         const exprs = findExpressions(testStr)
         assert.strictEqual(exprs.length, 1, `${exprs} has the wrong length, expected 1`)
         assert.strictEqual(exprs[0], '3')
