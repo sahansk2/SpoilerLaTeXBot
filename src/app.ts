@@ -26,8 +26,12 @@ require('dotenv').config()
 const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
 const BOT_KEY = process.env.BOT_KEY;
 
-const connection = new DatabaseConnection(':memory:')
-
+const connection = new DatabaseConnection(process.env.SLB_PATH)
+process.on('SIGINT', () => {
+  console.log('Bye for now!')
+  connection.close()
+  process.exit()
+})
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
   client.user?.setPresence({ activity: { name: '$||help' }})
