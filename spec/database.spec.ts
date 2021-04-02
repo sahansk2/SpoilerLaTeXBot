@@ -17,7 +17,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import '../src/db/model'
 import assert from 'assert'
 import DatabaseConnection from '../src/db/db'
 
