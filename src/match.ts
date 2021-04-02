@@ -17,7 +17,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 function findExpressions(content: string): string[] {
     const backtickRegex = RegExp('`[^`]*`')
     const expRegex = RegExp(String.raw`\$\|\|([^$]+)\|\|`, 'g');
@@ -32,6 +31,7 @@ function findExpressions(content: string): string[] {
 function exprToURL(expr: string): string {
     return `${encodeURIComponent(expr)}`
 }
+
 export {
     findExpressions,
     exprToURL

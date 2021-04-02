@@ -18,7 +18,6 @@
 */
 
 import Database, { SqliteError } from "better-sqlite3"
-import "./model"
 
 interface MessageSchema {
   guild_id: string;
@@ -37,6 +36,7 @@ interface UniqueMessage {
 class DatabaseConnection {
   db;
   constructor(path?: string) {
+    console.log("constructed connection")
     this.db = new Database(path ?? ':memory:', { verbose: console.log })
     const SETUP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS messages (
       guild_id TEXT NOT NULL,
@@ -64,23 +64,45 @@ class DatabaseConnection {
         @bot_message_id, 
         @src_message_id, 
         @src_user_id
+      )
     `
     const insert_message_stmt = this.db.prepare(ADD_MESSAGE_ENTRY_SQL)
     return insert_message_stmt.run(msg)
   }
 
-  delete_botmsg({ guild_id, channel_id, message_id: bot_message_id}: UniqueMessage, sender_id: string) {
-    const DELETE_BOTMSG = `DELETE FROM messages WHERE guild_id = @guild_id and channel_id = @channel_id and bot_message_id = @bot_message_id`
+  delete_dependent_botmsg({ guild_id, channel_id, message_id: bot_message_id}: UniqueMessage, src_user_id: string) {
+    const DELETE_BOTMSG = `DELETE FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND bot_message_id = @bot_message_id AND src_user_id = @src_user_id`
     const delete_botmsg_stmt = this.db.prepare(DELETE_BOTMSG)
     return delete_botmsg_stmt.run({
       guild_id,
       channel_id,
-      bot_message_id
+      bot_message_id,
+      src_user_id
     })
   }
 
   close(): void {
     this.db.close()
+  }
+
+  delete_all_linked({ guild_id, channel_id, message_id: src_message_id}: UniqueMessage) {
+    const DELETE_ALL_LINKED = `DELETE FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND src_message_id = @src_message_id`
+    const stmt = this.db.prepare(DELETE_ALL_LINKED)
+    return stmt.run({
+      guild_id,
+      channel_id,
+      src_message_id
+    })
+  }
+
+  get_all_linked({ guild_id, channel_id, message_id: src_message_id}: UniqueMessage) {
+    const FETCH_ALL_LINKED = `SELECT guild_id, channel_id, bot_message_id FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND src_message_id = @src_message_id`
+    const stmt = this.db.prepare(FETCH_ALL_LINKED)
+    return stmt.all({
+      guild_id,
+      channel_id,
+      src_message_id
+    })
   }
 }
 
