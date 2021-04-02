@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha",
+    "test": "LATEXBOT_DB=':memory:' mocha",
     "dev": "ts-node ./src/app.ts"
   },
   "author": "Sahan Kumarasinghe",
