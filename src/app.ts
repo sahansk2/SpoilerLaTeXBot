@@ -17,15 +17,21 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Client, Message, MessageAttachment, MessageEmbed } from 'discord.js';
-import { findExpressions, exprToURL } from './match';
+import { Client } from 'discord.js';
+import DatabaseConnection from './db/db'
+import { detect_content, clear_linked_messages } from './eventhooks'
 
 require('dotenv').config()
 
-const client: Client = new Client()
+const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
 const BOT_KEY = process.env.BOT_KEY;
-const SRC_LOC: string = "https://github.com/sahansk2/secretlatexbot";
 
+const connection = new DatabaseConnection(process.env.SLB_PATH)
+process.on('SIGINT', () => {
+  console.log('Bye for now!')
+  connection.close()
+  process.exit()
+})
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
   client.user?.setPresence({ activity: { name: '$||help' }})
@@ -33,19 +39,35 @@ client.on('ready', () => {
 });
 
 client.on('message', (msg) => {
-  const content: string = msg.content;
-  const delim: number = content.indexOf("$||") 
-  if (delim !== -1) {
-    if (content.trim() == "$||help") {
-      msg.channel.send(`Send Latex expressions in spoiler tags! Just wrap your latex expression like this: \`$|| YOUR EXPRESSION HERE ||\`. Supports multiple expressions in the same message. For example: Three divided by four is $||\\frac{3}{4}||, as opposed to $||\\frac{4}{5}||. Type \`$||source\` for access to source code.`)
-    } else if (content.trim() == "$||source") {
-      msg.channel.send(`The source code for this bot is available at ${SRC_LOC}.`)
-    } else {
-      const expressions = findExpressions(content)
-      if (expressions.length > 0)
-        msg.channel.send(expressions.map((expr, i) => new MessageAttachment(`https://chart.googleapis.com/chart?cht=tx&chl=${exprToURL(expr)}`, `SPOILER_expr_${i}.png`)))
-    }
-  }
+  detect_content(msg, connection)
 });
+
+client.on('messageDelete', (msg) => {
+  // If it's partial, we don't care - we can't do anything about it, because we only have the msg id and nothing else.
+  if (!msg.partial) {
+    clear_linked_messages(msg, connection)
+  }
+})
+
+client.on('messageUpdate', (old_msg, new_msg) => {
+  // If it's partial, then that means it's probably just uncached. 
+  if (old_msg.partial) {
+    old_msg.fetch()
+      .then((msg) => {
+        clear_linked_messages(msg, connection)
+      })
+      .catch((err) => console.log(err))
+  } else {
+    clear_linked_messages(old_msg, connection)
+  }
+
+  if (new_msg.partial) {
+    new_msg.fetch()
+      .then(msg => detect_content(msg, connection))
+      .catch(err => console.log(err))
+  } else {
+    detect_content(new_msg, connection)
+  }
+})
 
 client.login(BOT_KEY);
