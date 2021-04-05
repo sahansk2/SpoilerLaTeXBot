@@ -55,4 +55,9 @@ describe('findExpressions', () => {
         const receivedStr = decodeURIComponent(encodedStr);
         assert.strictEqual(expr, receivedStr);
     })
+    it('Should not mix with normal spoilers', () => {
+        const testStr = 'I know $||3 + 5 = 8||, but ||I failed grade school||.'
+        const expr = findExpressions(testStr)[0]
+        assert.strictEqual(expr, '3 + 5 = 8')
+    })
 })
