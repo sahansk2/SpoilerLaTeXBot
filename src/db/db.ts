@@ -17,91 +17,77 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import Database, { SqliteError } from "better-sqlite3"
+import { Database } from 'sqlite3'
+import { Message } from 'discord.js'
+
+require('dotenv').config()
+
+var sqlite3 = require('sqlite3').verbose();
 
 interface MessageSchema {
-  guild_id: string;
-  channel_id: string;
-  bot_message_id: string;
-  src_message_id: string;
-  src_user_id: string;
-}
-
-interface UniqueMessage {
-  guild_id: string;
-  channel_id: string;
-  message_id: string;
+  $bot_message_id: string;
+  $src_message_id: string;
+  $src_user_id: string;
 }
 
 class DatabaseConnection {
-  db;
+  db: Database;
   constructor(path?: string) {
     console.log("constructed connection")
-    this.db = new Database(path ?? ':memory:', { verbose: console.log })
+    this.db = new Database(path ?? ':memory:')
     const SETUP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS messages (
-      guild_id TEXT NOT NULL,
-      channel_id TEXT NOT NULL,
-      bot_message_id TEXT NOT NULL,
+      bot_message_id TEXT NOT NULL PRIMARY KEY,
       src_message_id TEXT NOT NULL,
-      src_user_id TEXT NOT NULL,
-      PRIMARY KEY (guild_id, channel_id, bot_message_id)
+      src_user_id TEXT NOT NULL
     )`
-    const initialize_table_stmt = this.db.prepare(SETUP_TABLE_SQL)
-    initialize_table_stmt.run() 
+    this.db.serialize(() => {
+      this.db.run(SETUP_TABLE_SQL)  
+    })
   }
 
   insert_message(msg: MessageSchema) {
     const ADD_MESSAGE_ENTRY_SQL = `INSERT INTO messages 
       (
-        guild_id, 
-        channel_id, 
         bot_message_id, 
         src_message_id, 
         src_user_id
       ) VALUES (
-        @guild_id,  
-        @channel_id, 
-        @bot_message_id, 
-        @src_message_id, 
-        @src_user_id
+        $bot_message_id, 
+        $src_message_id, 
+        $src_user_id
       )
     `
-    const insert_message_stmt = this.db.prepare(ADD_MESSAGE_ENTRY_SQL)
-    return insert_message_stmt.run(msg)
-  }
-
-  delete_dependent_botmsg({ guild_id, channel_id, message_id: bot_message_id}: UniqueMessage, src_user_id: string) {
-    const DELETE_BOTMSG = `DELETE FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND bot_message_id = @bot_message_id AND src_user_id = @src_user_id`
-    const delete_botmsg_stmt = this.db.prepare(DELETE_BOTMSG)
-    return delete_botmsg_stmt.run({
-      guild_id,
-      channel_id,
-      bot_message_id,
-      src_user_id
+    this.db.serialize(() => {
+      this.db.run(ADD_MESSAGE_ENTRY_SQL, msg)
     })
   }
+
+  // delete_dependent_botmsg($bot_message_id: string, $src_user_id: string) {
+  //   const DELETE_BOTMSG = `DELETE FROM messages WHERE bot_message_id = $bot_message_id AND src_user_id = $src_user_id`
+  //   this.db.serialize(() => {
+  //     this.db.run(DELETE_BOTMSG, {
+  //       $src_user_id,
+  //       $bot_message_id
+  //     })
+  //   })
+  // }
 
   close(): void {
     this.db.close()
   }
 
-  delete_all_linked({ guild_id, channel_id, message_id: src_message_id}: UniqueMessage) {
-    const DELETE_ALL_LINKED = `DELETE FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND src_message_id = @src_message_id`
-    const stmt = this.db.prepare(DELETE_ALL_LINKED)
-    return stmt.run({
-      guild_id,
-      channel_id,
-      src_message_id
-    })
-  }
-
-  get_all_linked({ guild_id, channel_id, message_id: src_message_id}: UniqueMessage) {
-    const FETCH_ALL_LINKED = `SELECT guild_id, channel_id, bot_message_id FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND src_message_id = @src_message_id`
-    const stmt = this.db.prepare(FETCH_ALL_LINKED)
-    return stmt.all({
-      guild_id,
-      channel_id,
-      src_message_id
+  delete_all_linked(src_msg: Message) {
+    const $src_message_id = src_msg.id
+    const FETCH_ALL_LINKED = `SELECT bot_message_id FROM messages WHERE src_message_id = $src_message_id`
+    const DELETE_ALL_LINKED = `DELETE FROM messages WHERE src_message_id = $src_message_id`
+    this.db.serialize(() => {
+      this.db.each(FETCH_ALL_LINKED, { $src_message_id }, (err, { bot_message_id }) => {
+        if (err) return;
+        src_msg.channel.messages.fetch(bot_message_id).then(botmsg => botmsg.delete()).catch(err => console.log(err))
+        this.db.serialize(() => {
+          this.db.run(DELETE_ALL_LINKED, { $src_message_id })
+        })
+      })
     })
   }
 }
@@ -110,5 +96,6 @@ class DatabaseConnection {
 // Important to validate the deletion of the message
 // const BOTMSG_TO_SRCMSG_SQL = `SELECT src_message_id FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND bot_message_id = @bot_message_id AND src_user_id = @src_user_id`
 // const botmsg_to_srcmsg_stmt = db.prepare(BOTMSG_TO_SRCMSG_SQL)
+const msg_db = new DatabaseConnection(process.env.SLB_DB_PATH)
 
-export default DatabaseConnection
+export default msg_db

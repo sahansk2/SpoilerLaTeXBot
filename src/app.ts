@@ -17,8 +17,8 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Client } from 'discord.js';
-import DatabaseConnection from './db/db'
+import { Client, Message } from 'discord.js';
+import msg_db from './db/db'
 import { detect_content, clear_linked_messages } from './eventhooks'
 
 require('dotenv').config()
@@ -26,10 +26,9 @@ require('dotenv').config()
 const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
 const BOT_KEY = process.env.BOT_KEY;
 
-const connection = new DatabaseConnection(process.env.SLB_PATH)
 process.on('SIGINT', () => {
   console.log('Bye for now!')
-  connection.close()
+  msg_db.close()
   process.exit()
 })
 client.on('ready', () => {
@@ -39,34 +38,37 @@ client.on('ready', () => {
 });
 
 client.on('message', (msg) => {
-  detect_content(msg, connection)
+  console.log('detected message')
+  detect_content(msg)
 });
 
 client.on('messageDelete', (msg) => {
+  console.log('detected messageDelete on ', msg.id)
   // If it's partial, we don't care - we can't do anything about it, because we only have the msg id and nothing else.
-  if (!msg.partial) {
-    clear_linked_messages(msg, connection)
+  if (!msg.partial && msg.author.id != client.user!.id) {
+    clear_linked_messages(msg as Message)
   }
 })
 
 client.on('messageUpdate', (old_msg, new_msg) => {
+  console.log('detected messageUpdate on ', old_msg.id)
   // If it's partial, then that means it's probably just uncached. 
   if (old_msg.partial) {
     old_msg.fetch()
       .then((msg) => {
-        clear_linked_messages(msg, connection)
+        clear_linked_messages(msg)
       })
       .catch((err) => console.log(err))
   } else {
-    clear_linked_messages(old_msg, connection)
+    clear_linked_messages(old_msg as Message)
   }
 
   if (new_msg.partial) {
     new_msg.fetch()
-      .then(msg => detect_content(msg, connection))
+      .then(msg => detect_content(msg))
       .catch(err => console.log(err))
   } else {
-    detect_content(new_msg, connection)
+    detect_content(new_msg as Message)
   }
 })
 

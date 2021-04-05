@@ -19,32 +19,18 @@
 
 // This file contains the event hooks used directly by the Discord Bot
 import { Message, MessageAttachment } from "discord.js"
-import DatabaseConnection from "./db/db"
+import msg_db from "./db/db"
 import { findExpressions, exprToURL } from "./match"
 
 const SRC_LOC: string = "https://github.com/sahansk2/secretlatexbot";
 
-function clear_linked_messages(src_msg: Message, connection: DatabaseConnection) {
-  const db_msg = {
-    guild_id: src_msg.guild!.id,
-    channel_id: src_msg.channel.id,
-    message_id: src_msg.id
-  }
-  const bot_msgs_to_delete = connection.get_all_linked(db_msg)
-  for (const bot_msg of bot_msgs_to_delete) {
-    console.log('deleting message with id=' + bot_msg.bot_message_id)
-    src_msg.channel.messages.fetch(bot_msg.bot_message_id)
-      .then((msg) => {
-        msg.delete()
-      }).catch(()=>{})
-  }
-  console.log('deleting in db')
-  connection.delete_all_linked(db_msg)
+function clear_linked_messages(src_msg: Message) {
+  msg_db.delete_all_linked(src_msg)
   console.log('finished deleting in db')
   return src_msg
 }
-  
-function detect_content(msg: Message, connection: DatabaseConnection) {
+
+function detect_content(msg: Message) {
   const content: string = msg.content;
   const delim: number = content.indexOf("$||") 
   if (delim !== -1) {
@@ -59,20 +45,15 @@ function detect_content(msg: Message, connection: DatabaseConnection) {
           msg.channel.send(new MessageAttachment(`https://chart.googleapis.com/chart?cht=tx&chl=${exprToURL(expressions[i])}`, `SPOILER_expr_${i}.png`))
             .then((botmsg) => {
               // Store the sent bot message / sender message pair
-              console.log('the guild is: ', msg.guild!.id)
               console.log('the message author is: ', msg.author.id)
 
               const entry = {
-                guild_id: msg.guild!.id,
-                channel_id: msg.channel.id,
-                bot_message_id: botmsg.id,
-                src_message_id: msg.id,
-                src_user_id: msg.author.id
+                $bot_message_id: botmsg.id,
+                $src_message_id: msg.id,
+                $src_user_id: msg.author.id
               }
-              connection.insert_message(entry)
-              console.log('*********************************\n',
-              connection.db.prepare(`SELECT * FROM messages`).all()
-              )
+              msg_db.insert_message(entry)
+              console.log('*********************************\n')
               return botmsg
             }).catch((err) => console.log(err))
             // .then((botmsg) => botmsg.react('🗑️'))
