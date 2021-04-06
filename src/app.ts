@@ -31,6 +31,7 @@ process.on('SIGINT', () => {
   msg_db.close()
   process.exit()
 })
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
   client.user?.setPresence({ activity: { name: '$||help' }})
@@ -38,12 +39,12 @@ client.on('ready', () => {
 });
 
 client.on('message', (msg) => {
-  console.log('detected message')
+  console.log('detected new message', msg.id)
   detect_content(msg)
 });
 
 client.on('messageDelete', (msg) => {
-  console.log('detected messageDelete on ', msg.id)
+  console.log('detected messageDelete on', msg.id)
   // If it's partial, we don't care - we can't do anything about it, because we only have the msg id and nothing else.
   if (!msg.partial && msg.author.id != client.user!.id) {
     clear_linked_messages(msg as Message)
@@ -51,25 +52,27 @@ client.on('messageDelete', (msg) => {
 })
 
 client.on('messageUpdate', (old_msg, new_msg) => {
-  console.log('detected messageUpdate on ', old_msg.id)
+  console.log('detected messageUpdate from', old_msg.id, 'to', new_msg.id)
   // If it's partial, then that means it's probably just uncached. 
+  let message_promises: Array<Promise<Message>> = []
   if (old_msg.partial) {
-    old_msg.fetch()
-      .then((msg) => {
-        clear_linked_messages(msg)
-      })
-      .catch((err) => console.log(err))
+    message_promises.push(old_msg.fetch())
   } else {
-    clear_linked_messages(old_msg as Message)
+    message_promises.push(new Promise(resolve => resolve(old_msg)))
   }
 
   if (new_msg.partial) {
-    new_msg.fetch()
-      .then(msg => detect_content(msg))
-      .catch(err => console.log(err))
+    message_promises.push(new_msg.fetch())
   } else {
-    detect_content(new_msg as Message)
+    message_promises.push(new Promise(resolve => resolve(new_msg)))
   }
+
+  Promise.all(message_promises)
+    .then(([old_msg, new_msg]) => {
+      if (old_msg.content == new_msg.content) return;
+      clear_linked_messages(old_msg)
+      detect_content(new_msg)
+  }).catch((err) => console.log(err))
 })
 
 client.login(BOT_KEY);

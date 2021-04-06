@@ -53,7 +53,6 @@ function detect_content(msg: Message) {
                 $src_user_id: msg.author.id
               }
               msg_db.insert_message(entry)
-              console.log('*********************************\n')
               return botmsg
             }).catch((err) => console.log(err))
             // .then((botmsg) => botmsg.react('🗑️'))
