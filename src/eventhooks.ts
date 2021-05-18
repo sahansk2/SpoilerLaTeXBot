@@ -18,6 +18,9 @@
 */
 
 // This file contains the event hooks used directly by the Discord Bot
+const mjAPI = require("mathjax-node");
+const sharp = require("sharp");
+
 import { Message, MessageAttachment } from "discord.js"
 import msg_db from "./db/db"
 import { findExpressions, exprToURL } from "./match"
@@ -42,8 +45,20 @@ function detect_content(msg: Message) {
       const expressions = findExpressions(content)
       if (expressions.length > 0)
         for (let i = 0; i < expressions.length; i++) {
-          msg.channel.send(new MessageAttachment(`https://chart.googleapis.com/chart?cht=tx&chl=${exprToURL(expressions[i])}`, `SPOILER_expr_${i}.png`))
-            .then((botmsg) => {
+          mjAPI.typeset({
+            math: expressions[i],
+            format: "inline-TeX",
+            svg: true,
+          })
+          .then((data: any) => {
+            if (data.errors) throw new Error("Bad SVG output!")
+            else {
+              console.log("SVG: " + data.svg.replace(/currentColor/g, 'white'))
+              return sharp(Buffer.from(data.svg)).png().toBuffer()
+            }
+          })
+          .then((img: any) => msg.channel.send(new MessageAttachment(img, `SPOILER_expr_${i}.png`)))
+          .then((botmsg: MessageAttachment) => {
               // Store the sent bot message / sender message pair
               console.log('the message author is: ', msg.author.id)
 
@@ -54,7 +69,7 @@ function detect_content(msg: Message) {
               }
               msg_db.insert_message(entry)
               return botmsg
-            }).catch((err) => console.log(err))
+            }).catch((err: any) => console.log(err))
             // .then((botmsg) => botmsg.react('🗑️'))
         }
     }
