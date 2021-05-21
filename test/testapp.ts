@@ -13,12 +13,17 @@ app.post('/detect', (req, res) => {
 
 app.post('/latex', (req, res) => {
     res.setHeader('Content-Type',  'image/png')
-    get_image(req.body).then(
+    get_image(JSON.parse(req.body)).then(
       (img: any) => {
         res.write(img)
         res.end()
       }
     )
+    .catch((err: any) => {
+        console.log(err)
+        res.status(500)
+        res.end()
+    })
 })
 
 app.use(express.static('test/static'))

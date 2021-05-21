@@ -1,23 +1,41 @@
 <!DOCTYPE html>
 <html>
     <head>
-
-        <script src="index.js"></script>
-
+        <title>SpoilerLaTeXBot Prototyper</title>
+        <script src="/index.js"></script>
+        <script src="/index-post.js" defer></script>
+        <link href="/index.css" rel="stylesheet">
     </head>
     <body>
-        <h1>SpoilerLatexBot Pure Function Tester</h1>
-        <h2>Test LaTeX Detection in Discord messages</h2>
-        <form id="expression-form" onsubmit="return handleSubmitDetection(event)">
-            <input type="text" id="expression-in"/>
-        </form>
-        <div id="expression-out">
+        <div id="prelude">
+            <h1><span class='simpleborder'>SpoilerLaTeXBot Prototyper</span></h1>
+            <h2><i>By @FR911#4788</i></h2>
+            <h3>Repository: <i><a target="_blank" href="https://github.com/sahansk2/SpoilerLaTeXBot">https://github.com/sahansk2/SpoilerLaTeXBot</a></i></h3>
         </div>
-        <h2>Test generated LaTeX output</h2>
-        <form id="latex-form" onsubmit="return handleSubmitLatex(event)">
-            <input type="text" id="latex-in"/>
-        </form>
-        <div id="latex-out">
+        <hr/>
+        <div id="functions">
+            <em>Fill in your own inputs!</em>
+
+            <h3>LaTeX Detection</h3>
+            <form id="expression-form" onsubmit="return handleSubmitDetection(event)">
+                <label for="expression-in">Discord message containing LaTeX encapsulated in <code>$|| { LATEX HERE } ||</code> chunks.<br/></label>
+                <input type="text" size="60" id="expression-in" value="For 1.a, I got $||12cos(3t)||, but I got $||-12|| for the amplitude." required/> <button type="submit">Submit</button>
+            </form>
+            <div id="expression-out"></div>
+            <h3>Image Generation</h3>
+            <form id="latex-form" onsubmit="return handleSubmitLatex(event)">
+                <label for="latex-in">LaTeX to be converted to an image<br/></label>
+                <input type="text" size="60" id="latex-in" value="x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" required/> <button type="submit">Submit</button>
+            </form>
+            <div id="latex-out"></div>
         </div>
+        <hr/>
+        <div id="about">
+            <h2>About</h2>
+            <p>This website was made to more easily test features of the SpoilerLaTeXBot. SpoilerLaTeXBot uses the functionality you see in this page.</p>
+            <p>Feel free to use this website to test messages before you send them into a Discord.</p>
+        </div>
+        <hr/>
+        <p>&copy;Sahan Kumarasinghe 2021</p>
     </body>
 </html>
