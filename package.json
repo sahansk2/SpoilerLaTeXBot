@@ -8,33 +8,33 @@
     "test": "LATEXBOT_DB=':memory:' mocha",
     "dev": "ts-node ./src/app.ts",
     "devwatch": "ts-node-dev ./src/app.ts",
-    "copytest": "copyfiles test/static/** dist/test",
+    "copytest": "copyfiles -u 1 test/static/** dist/test",
     "testserver": "ts-node-dev ./test/testapp.ts"
   },
   "author": "Sahan Kumarasinghe",
   "license": "AGPLv3",
   "dependencies": {
     "@tsconfig/node14": "^1.0.0",
+    "@types/express": "^4.17.11",
     "@types/node": "^14.14.31",
     "@types/sqlite3": "^3.1.7",
+    "copyfiles": "^2.4.1",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "mathjax-node": "^2.1.1",
     "sharp": "^0.28.2",
     "sqlite": "^4.0.21",
     "sqlite3": "^5.0.2",
-    "ts-node-dev": "^1.1.6",
     "typescript": "^4.2.3"
   },
   "devDependencies": {
     "@types/expect": "^24.3.0",
-    "@types/express": "^4.17.11",
     "@types/mocha": "^8.2.1",
     "body-parser": "^1.19.0",
-    "copyfiles": "^2.4.1",
-    "express": "^4.17.1",
     "gh-pages": "^3.1.0",
     "mocha": "^8.3.1",
-    "ts-node": "^9.1.1"
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.6"
   }
 }
