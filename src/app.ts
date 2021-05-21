@@ -18,6 +18,7 @@
 */
 
 import { Client, Message } from 'discord.js';
+import { app } from '../test/testapp'
 import msg_db from './db/db'
 import { detect_content, clear_linked_messages } from './eventhooks'
 
@@ -26,6 +27,7 @@ require('dotenv').config()
 const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
 
 const BOT_KEY = process.env.BOT_KEY;
+const TESTPORT = process.env.TESTPORT;
 
 process.on('SIGINT', () => {
   console.log('Bye for now!')
@@ -77,3 +79,7 @@ client.on('messageUpdate', (old_msg, new_msg) => {
 })
 
 client.login(BOT_KEY);
+
+app.listen(TESTPORT || 4343, () => {
+  console.log('Now listening on localhost:4343')
+})

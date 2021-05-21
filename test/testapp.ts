@@ -28,6 +28,6 @@ app.post('/latex', (req, res) => {
 
 app.use(express.static('test/static'))
 
-app.listen(process.env.TESTPORT || 4343, () => {
-    console.log('Now listening on localhost:4343')
-})
+export {
+    app
+}
