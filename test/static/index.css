@@ -19,3 +19,7 @@ form {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+#botavatar {
+    border: 3px black solid;
+}
