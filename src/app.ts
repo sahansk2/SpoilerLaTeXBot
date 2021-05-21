@@ -24,6 +24,7 @@ import { detect_content, clear_linked_messages } from './eventhooks'
 require('dotenv').config()
 
 const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
+
 const BOT_KEY = process.env.BOT_KEY;
 
 process.on('SIGINT', () => {

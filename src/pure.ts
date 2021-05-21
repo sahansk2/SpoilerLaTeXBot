@@ -16,6 +16,8 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+const sharp = require("sharp");
+const mjAPI = require("mathjax-node");
 
 function findExpressions(content: string): string[] {
     const backtickRegex = RegExp('`[^`]*`')
@@ -32,7 +34,24 @@ function exprToURL(expr: string): string {
     return `${encodeURIComponent(expr)}`
 }
 
+
+function get_image(latex: String) {
+    return mjAPI.typeset({
+      math: latex,
+      format: "inline-TeX",
+      svg: true,
+    })
+    .then((data: any) => {
+      if (data.errors) throw new Error("Bad SVG output!")
+      else {
+        return sharp(Buffer.from(data.svg), { density: 230 }).extractChannel('alpha').toColorspace('b-w').png().toBuffer()
+      }
+    })
+    .catch((err: any) => console.log(err))
+}
+
 export {
     findExpressions,
-    exprToURL
+    exprToURL,
+    get_image
 }

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <script src="index.js"></script>
+
+    </head>
+    <body>
+        <h1>SpoilerLatexBot Pure Function Tester</h1>
+        <h2>Test LaTeX Detection in Discord messages</h2>
+        <form id="expression-form" onsubmit="return handleSubmitDetection(event)">
+            <input type="text" id="expression-in"/>
+        </form>
+        <div id="expression-out">
+        </div>
+        <h2>Test generated LaTeX output</h2>
+        <form id="latex-form" onsubmit="return handleSubmitLatex(event)">
+            <input type="text" id="latex-in"/>
+        </form>
+        <div id="latex-out">
+        </div>
+    </body>
+</html>

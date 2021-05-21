@@ -18,12 +18,9 @@
 */
 
 // This file contains the event hooks used directly by the Discord Bot
-const mjAPI = require("mathjax-node");
-const sharp = require("sharp");
-
 import { Message, MessageAttachment } from "discord.js"
 import msg_db from "./db/db"
-import { findExpressions, exprToURL } from "./match"
+import { findExpressions, get_image } from "./pure"
 
 const SRC_LOC: string = "https://github.com/sahansk2/secretlatexbot";
 
@@ -45,22 +42,11 @@ function detect_content(msg: Message) {
       const expressions = findExpressions(content)
       if (expressions.length > 0)
         for (let i = 0; i < expressions.length; i++) {
-          mjAPI.typeset({
-            math: expressions[i],
-            format: "inline-TeX",
-            svg: true,
-          })
-          .then((data: any) => {
-            if (data.errors) throw new Error("Bad SVG output!")
-            else {
-              console.log("SVG: " + data.svg.replace(/currentColor/g, 'white'))
-              return sharp(Buffer.from(data.svg)).png().toBuffer()
-            }
-          })
+          get_image(expressions[i])
           .then((img: any) => msg.channel.send(new MessageAttachment(img, `SPOILER_expr_${i}.png`)))
           .then((botmsg: MessageAttachment) => {
               // Store the sent bot message / sender message pair
-              console.log('the message author is: ', msg.author.id)
+              console.log('the message author iss: ', msg.author.id)
 
               const entry = {
                 $bot_message_id: botmsg.id,
