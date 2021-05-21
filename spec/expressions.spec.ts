@@ -18,9 +18,8 @@
 */
 
 
-import '../src/match'
 import assert from 'assert'
-import { findExpressions, exprToURL } from '../src/match'
+import { findExpressions, exprToURL } from '../src/pure'
 
 describe('findExpressions', () => {
     it('Should match a simple expression', () => {

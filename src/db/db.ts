@@ -34,7 +34,7 @@ class DatabaseConnection {
   db: Database;
   constructor(path?: string) {
     console.log("constructed connection")
-    this.db = new Database(path ?? ':memory:')
+    this.db = new Database(path)
     const SETUP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS messages (
       bot_message_id TEXT NOT NULL PRIMARY KEY,
       src_message_id TEXT NOT NULL,
