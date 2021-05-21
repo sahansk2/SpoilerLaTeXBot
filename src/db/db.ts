@@ -32,7 +32,7 @@ interface MessageSchema {
 
 class DatabaseConnection {
   db: Database;
-  constructor(path?: string) {
+  constructor(path: string) {
     console.log("constructed connection")
     this.db = new Database(path)
     const SETUP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS messages (
@@ -96,6 +96,7 @@ class DatabaseConnection {
 // Important to validate the deletion of the message
 // const BOTMSG_TO_SRCMSG_SQL = `SELECT src_message_id FROM messages WHERE guild_id = @guild_id AND channel_id = @channel_id AND bot_message_id = @bot_message_id AND src_user_id = @src_user_id`
 // const botmsg_to_srcmsg_stmt = db.prepare(BOTMSG_TO_SRCMSG_SQL)
-const msg_db = new DatabaseConnection(process.env.SLB_DB_PATH)
+const SLB_DB_PATH: string = process.env.SLB_DB_PATH!
+const msg_db = new DatabaseConnection(SLB_DB_PATH)
 
 export default msg_db
