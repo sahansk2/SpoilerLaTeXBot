@@ -1,11 +1,12 @@
 # SecretLatexBot
 
-A Discord bot that detects LaTeX between `$||` and `||` and sends the resulting LaTeX in a spoiler image. For example, in `Here is $||3||`, 3 will be detected and sent in a spoiler image.
+Demo available here: <https://spoilerlatexbot.web.illinois.edu/>
 
-This bot currently uses the Google Charts API on the backend.
+A Discord bot that detects inline LaTeX between `$||` and `||` and sends the resulting LaTeX in a spoiler image. For example, in `Here is $||3||`, 3 will be detected and sent in a spoiler image.
+
+This bot uses [Sharp](https://sharp.pixelplumbing.com/) and [MathJax](https://github.com/mathjax/MathJax-node) on the backend to convert LaTeX to an image.
 
 This bot is licensed under AGPLv3 - what this means is that (among other things), you can modify, redistribute, and use this bot however you want, as long as you make the source available to whoever is using the bot, and as long as you retain copyright license notices in the code. A convenient way of doing this is to change the `SRC_LOC` variable in `app.ts` accordingly.
-
 
 ## License
 
