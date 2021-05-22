@@ -18,16 +18,12 @@
 */
 
 import { Client, Message } from 'discord.js';
-import { app } from '../test/testapp'
 import msg_db from './db/db'
 import { detect_content, clear_linked_messages } from './eventhooks'
-
-require('dotenv').config()
 
 const client: Client = new Client({ partials: ['MESSAGE', 'REACTION'] })
 
 const BOT_KEY = process.env.BOT_KEY;
-const TESTPORT = process.env.TESTPORT || 3000;
 
 process.on('SIGINT', () => {
   console.log('Bye for now!')
@@ -61,13 +57,13 @@ client.on('messageUpdate', (old_msg, new_msg) => {
   if (old_msg.partial) {
     message_promises.push(old_msg.fetch())
   } else {
-    message_promises.push(new Promise(resolve => resolve(old_msg)))
+    message_promises.push(new Promise(resolve => resolve(old_msg as Message)))
   }
 
   if (new_msg.partial) {
     message_promises.push(new_msg.fetch())
   } else {
-    message_promises.push(new Promise(resolve => resolve(new_msg)))
+    message_promises.push(new Promise(resolve => resolve(new_msg as Message)))
   }
 
   Promise.all(message_promises)
@@ -78,8 +74,8 @@ client.on('messageUpdate', (old_msg, new_msg) => {
   }).catch((err) => console.log(err))
 })
 
-client.login(BOT_KEY);
+const clientInit = () => {
+  client.login(process.env.BOTKEY)
+}
 
-app.listen(TESTPORT, () => {
-  console.log('Now listening on localhost:' + TESTPORT)
-})
+export default clientInit

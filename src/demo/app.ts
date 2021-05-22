@@ -1,4 +1,4 @@
-import { findExpressions, get_image } from '../src/pure'
+import { findExpressions, get_image } from '../lib'
 
 import express = require('express')
 const app = express()
@@ -26,8 +26,13 @@ app.post('/latex', (req, res) => {
     })
 })
 
-app.use(express.static('test/static'))
+app.use(express.static(__dirname + '/static'))
 
-export {
-    app
+const demoInit = () => {
+  const port = process.env.DEMOPORT || 3000
+  app.listen(port, () => {
+    console.log('Now listening on http://localhost:' + port)
+  })
 }
+
+export default demoInit

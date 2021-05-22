@@ -1,16 +1,17 @@
 {
-  "name": "secretlatexbot",
+  "name": "spoilerlatexbot",
   "version": "1.0.0",
   "description": "Put in spoiler'd Latex, get out spoiler'd Latex",
-  "main": "index.js",
+  "main": "src/_run.js",
   "scripts": {
-    "build": "tsc",
-    "test": "LATEXBOT_DB=':memory:' mocha",
-    "dev": "ts-node ./src/app.ts",
-    "devwatch": "ts-node-dev ./src/app.ts",
-    "copytest": "copyfiles -u 1 test/static/** dist/test",
-    "testserver": "ts-node-dev ./test/testapp.ts"
+    "build": "tsc && npm run copystatic",
+    "tests": "LATEXBOT_DB=':memory:' mocha",
+    "bot": "ts-node-dev ./src/bot/_run.ts",
+    "demo": "ts-node-dev ./src/demo/_run.ts",
+    "dev": "ts-node-dev ./src/_run.ts",
+    "copystatic": "copyfiles -u 1 src/demo/static/** dist/"
   },
+
   "author": "Sahan Kumarasinghe",
   "license": "AGPLv3",
   "dependencies": {

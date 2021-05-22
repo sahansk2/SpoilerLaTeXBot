@@ -20,7 +20,7 @@
 // This file contains the event hooks used directly by the Discord Bot
 import { Message, MessageAttachment } from "discord.js"
 import msg_db from "./db/db"
-import { findExpressions, get_image } from "./pure"
+import { findExpressions, get_image } from "../lib"
 
 const SRC_LOC: string = "https://github.com/sahansk2/secretlatexbot";
 
