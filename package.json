@@ -11,31 +11,26 @@
     "dev": "ts-node-dev ./src/_run.ts",
     "copystatic": "copyfiles -u 1 src/demo/static/** dist/"
   },
-
   "author": "Sahan Kumarasinghe",
   "license": "AGPLv3",
   "dependencies": {
-    "@tsconfig/node14": "^1.0.0",
-    "@types/express": "^4.17.11",
-    "@types/node": "^14.14.31",
-    "@types/sqlite3": "^3.1.7",
+    "@tsconfig/node16": "^1.0.2",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.6.1",
     "copyfiles": "^2.4.1",
-    "discord.js": "^12.5.1",
+    "discord.js": "^13.1.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mathjax-node": "^2.1.1",
-    "sharp": "^0.28.2",
-    "sqlite": "^4.0.21",
-    "sqlite3": "^5.0.2",
-    "typescript": "^4.2.3"
+    "sharp": "^0.28.3",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@types/expect": "^24.3.0",
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^9.0.0",
     "body-parser": "^1.19.0",
-    "gh-pages": "^3.1.0",
-    "mocha": "^8.3.1",
-    "ts-node": "^9.1.1",
-    "ts-node-dev": "^1.1.6"
+    "mocha": "^9.0.3",
+    "ts-node": "^10.2.0",
+    "ts-node-dev": "^1.1.8"
   }
 }
