@@ -17,8 +17,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Client, Message } from 'discord.js';
-
 const BOT_KEY = process.env.BOT_KEY;
 
 process.on('SIGINT', () => {
