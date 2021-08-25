@@ -24,7 +24,7 @@ function findExpressions(content: string): string[] {
     const expRegex = RegExp(String.raw`\$\|\|([^$]+?)\|\|`, 'g');
     const matches = content.replace(backtickRegex, '').matchAll(expRegex)
     let results: string[] = [];
-    for (let result of matches) {
+    for (let result of Array.from(matches)) {
         results.push(result[1].trim())
     }
     return results;
