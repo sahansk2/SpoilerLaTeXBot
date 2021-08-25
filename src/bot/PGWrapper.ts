@@ -3,12 +3,17 @@ import { IDCWrapper } from './DCWrapper'
 import { Message } from 'discord.js'
 import { Pool, PoolClient } from 'pg'
 
+interface ChannelMessage {
+    channelId: string,
+    messageId: string
+}
+
 interface IPGWrapper {
     cleanup(): void,
     refreshUserMessage(msgId: string, channelId: string, latexExpressions: string[]): Promise<void | string[]>,
     deleteLinkedMessages(msgId: string): void,
     sendAndStoreLinkedMessages(msg: Message, latexExpressions: string[]): void,
-    getLinkedMessages(msgId: string): Promise<void | string[]> 
+    getLinkedMessages(msgId: string): Promise<void | ChannelMessage[]> 
 }
 
 @injectable()
@@ -41,7 +46,8 @@ class PGWrapper implements IPGWrapper {
             }) as Promise<void | string[]>
     }
 
-    getLinkedMessages(msgId: string): Promise<void | string[]> {
+    // TODO: Rewrite to return the channel ID as well
+    getLinkedMessages(msgId: string): Promise<void | ChannelMessage[]> {
         return this.pool.query('SELECT botmessageid FROM UserToBotMessage WHERE usermessageid=$1', [msgId])
             .then(res => {
                 return res.rows

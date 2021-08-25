@@ -35,7 +35,7 @@ function exprToURL(expr: string): string {
 }
 
 
-function get_image(latex: String) {
+function get_image(latex: String): Promise<any> {
     return mjAPI.typeset({
       math: latex,
       format: "inline-TeX",

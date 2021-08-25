@@ -7,7 +7,7 @@ import { findExpressions } from '../lib'
 interface IActor {
     handleExit(): void,
     handleEdit(s: Message): void,
-    handleDelete(s: Message): void,
+    handleDelete(s: Message): Promise<void>,
     handleMessage(s: Message): void
 }
 
@@ -32,22 +32,19 @@ class Actor implements IActor {
                 this.pgwrapper.refreshUserMessage(msg.id, msg.channelId, latexExpressions)
                     .then(messagesToDelete => {
                         if (messagesToDelete && messagesToDelete.length > 0) {
-                            for (let mId of messagesToDelete) {
-                                this.dcwrapper.deleteMessage(mId)
-                            }
-                            this.pgwrapper.deleteLinkedMessages(msg.id)
-                            this.pgwrapper.sendAndStoreLinkedMessages(msg, latexExpressions)
+                            this.handleDelete(msg)
+                                .then(() => this.handleMessage(msg))
                         }
                     })
             })
     }
     
     handleDelete(msg: Message) {
-        let linkedBotMessages = this.pgwrapper.getLinkedMessages(msg.id)
+        return this.pgwrapper.getLinkedMessages(msg.id)
             .then(linkedBotMessages => {
                 if (linkedBotMessages) {
-                    for (let mId of linkedBotMessages) {
-                        this.dcwrapper.deleteMessage(mId)
+                    for (let botMsg of linkedBotMessages) {
+                        this.dcwrapper.deleteMessage(botMsg.channelId, botMsg.messageId)
                     }
                     this.pgwrapper.deleteLinkedMessages(msg.id)
                 }
@@ -55,7 +52,9 @@ class Actor implements IActor {
     }
 
     handleMessage(msg: Message) {
-
+        let latexExpressions = findExpressions(msg.content)
+        this.pgwrapper.refreshUserMessage(msg.id, msg.channelId, latexExpressions)
+            .then(() => this.dcwrapper.sendLatex(msg.channelId, msg.id, latexExpressions))
     }
 }
 
