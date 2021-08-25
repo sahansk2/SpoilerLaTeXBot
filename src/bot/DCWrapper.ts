@@ -1,5 +1,5 @@
 import { inject, injectable, singleton} from "tsyringe"
-import { Client, Message } from 'discord.js'
+import { Client, Message, Intents } from 'discord.js'
 
 
 interface IDCWrapper {
@@ -11,9 +11,16 @@ interface IDCWrapper {
 @injectable()
 @singleton()
 class DCWrapper implements IDCWrapper {
-    constructor(private client: Client) {
+    private client: Client;
+
+    constructor() {
+        this.client = new Client({
+            partials: ['MESSAGE'],
+            intents: Intents.FLAGS.GUILDS
+        });
 
     }
+
     cleanup() {
 
     }
@@ -27,7 +34,12 @@ class DCWrapper implements IDCWrapper {
     }
     
     deleteMessage(msgId: string) {
-        
+        this.client
+    }
+
+    sendLatex(userMsgId: string, latexExpressions: string[]): string[] {
+
+        return []
     }
 }
 

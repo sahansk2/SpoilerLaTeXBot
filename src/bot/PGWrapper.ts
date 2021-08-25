@@ -1,36 +1,69 @@
 import { inject, injectable, singleton } from "tsyringe"
 import { IDCWrapper } from './DCWrapper'
-import { PoolClient } from 'pg'
+import { Message } from 'discord.js'
+import { Pool, PoolClient } from 'pg'
 
 interface IPGWrapper {
     cleanup(): void,
-    refreshUserMessage(msgId: string, latexExpressions: string[]): string[],
+    refreshUserMessage(msgId: string, channelId: string, latexExpressions: string[]): Promise<void | string[]>,
     deleteLinkedMessages(msgId: string): void,
-    sendAndStoreLinkedMessages(msgId: string, latexExpressions: string[]): void
+    sendAndStoreLinkedMessages(msg: Message, latexExpressions: string[]): void,
+    getLinkedMessages(msgId: string): Promise<void | string[]> 
 }
 
 @injectable()
 @singleton()
 class PGWrapper implements IPGWrapper {
+    //TODO: setup depenedency injection with this
+    private pool: Pool;
+
     constructor(
-        @inject("IDCWrapper") private dcwrapper: IDCWrapper, 
-        @inject("PoolClient") private pg: PoolClient
-    ) {}
+        @inject("IDCWrapper") private dcwrapper: IDCWrapper
+    ) {
+        // Environment variables
+        // PGHOST (localhost), PGUSER, PGDATABSAE, PGPASSWORD, PGPORT (5432)
+        this.pool = new Pool();
+    }
 
     cleanup() {
-
+        this.pool.end();
     }
     
-    refreshUserMessage(msgId: string, latexExpressions: string[]): string[] {
-        return []
+    // Get a message ID of the source message, and the latex expressions it contains,
+    // Return all linked messages if 
+    refreshUserMessage(msgId: string, channelId: string, latexExpressions: string[]): Promise<void | string[]> {
+        return this.pool.query('SELECT * FROM refreshusermessage($1, $2, $3)', [msgId, channelId, latexExpressions])
+            .then(res => {
+                return res.rows
+            })
+            .catch(e => {
+                console.error(e.stack)
+            }) as Promise<void | string[]>
+    }
+
+    getLinkedMessages(msgId: string): Promise<void | string[]> {
+        return this.pool.query('SELECT botmessageid FROM UserToBotMessage WHERE usermessageid=$1', [msgId])
+            .then(res => {
+                return res.rows
+            })
+            .catch(e => {
+                console.error(e.stack)
+            }) as Promise<void | string[]>
     }
 
     deleteLinkedMessages(msgId: string): void {
-
+        this.pool.query('DELETE FROM MessageContent as m WHERE m.userMessageId = $1', [msgId])
+            .catch(e => {
+                console.error("Error deleting messages from database")
+                console.error(e.stack)
+            })
     }
 
-    sendAndStoreLinkedMessages(msgId: string, latexExpressions: string[]): void {
+    sendAndStoreLinkedMessages(msg: Message, latexExpressions: string[]): void {
+        this.refreshUserMessage(msg.id, msg.channelId, latexExpressions)
+            .then(() => {
 
+            })
     }
 }
 

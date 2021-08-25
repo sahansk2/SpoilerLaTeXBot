@@ -7,7 +7,8 @@ import { findExpressions } from '../lib'
 interface IActor {
     handleExit(): void,
     handleEdit(s: Message): void,
-    handleDelete(s: Message): void
+    handleDelete(s: Message): void,
+    handleMessage(s: Message): void
 }
 
 @injectable()
@@ -27,20 +28,34 @@ class Actor implements IActor {
         this.dcwrapper.resolveMessage(msg)
             .then((msg) => {
                 let latexExpressions = findExpressions(msg.content)
-                let messagesToDelete = this.pgwrapper.refreshUserMessage(msg.id, latexExpressions);
-                if (messagesToDelete.length > 0) {
-                    for (let mId of messagesToDelete) {
-                        this.dcwrapper.deleteMessage(mId)
-                    }
-                    this.pgwrapper.deleteLinkedMessages(msg.id)
-                    this.pgwrapper.sendAndStoreLinkedMessages(msg.id, latexExpressions)
-                }
-            }
-        )
+                
+                this.pgwrapper.refreshUserMessage(msg.id, msg.channelId, latexExpressions)
+                    .then(messagesToDelete => {
+                        if (messagesToDelete && messagesToDelete.length > 0) {
+                            for (let mId of messagesToDelete) {
+                                this.dcwrapper.deleteMessage(mId)
+                            }
+                            this.pgwrapper.deleteLinkedMessages(msg.id)
+                            this.pgwrapper.sendAndStoreLinkedMessages(msg, latexExpressions)
+                        }
+                    })
+            })
     }
     
     handleDelete(msg: Message) {
-        this.pgwrapper.deleteLinkedMessages(msg.id)
+        let linkedBotMessages = this.pgwrapper.getLinkedMessages(msg.id)
+            .then(linkedBotMessages => {
+                if (linkedBotMessages) {
+                    for (let mId of linkedBotMessages) {
+                        this.dcwrapper.deleteMessage(mId)
+                    }
+                    this.pgwrapper.deleteLinkedMessages(msg.id)
+                }
+            })
+    }
+
+    handleMessage(msg: Message) {
+
     }
 }
 
