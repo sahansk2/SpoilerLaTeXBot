@@ -1,6 +1,6 @@
 # SecretLatexBot
 
-Demo available here: <https://spoilerlatexbot.web.illinois.edu/>
+![](./SpoilerLaTeXBotDemo.gif)
 
 A Discord bot that detects inline LaTeX between `$||` and `||` and sends the resulting LaTeX in a spoiler image. For example, in `Here is $||3||`, 3 will be detected and sent in a spoiler image.
 
