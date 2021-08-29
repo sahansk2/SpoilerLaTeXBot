@@ -1,4 +1,4 @@
-# SecretLatexBot
+# SpoilerLaTeXBot
 
 ![](./SpoilerLaTeXBotDemo.gif)
 
